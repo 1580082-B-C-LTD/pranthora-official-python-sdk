@@ -49,12 +49,13 @@ client = Pranthora(api_key="a967a994b2ee02c0b4578e5e02bba7d3", base_url="http://
 # client.agents.delete(agent_id="71f6a4be-7131-4b0e-8a4d-dae6db40850a", force_delete=True)
 
 # Real-time voice: start outbound call (uses your attached Twilio number to call to_phone_number with the given agent)
-# Replace +1234567890 with the number to call
+# Replace +1234567890 with the number to call, and +0987654321 with your Twilio from_number
 result = client.start(
-    agent_id="13de9c15-bba1-4c81-afee-9ce44aea2bfe",
-    to_phone_number="+919408393005",
+    agent_id="7805ed0c-d1e9-451e-ac43-5be2a34ebc97",
+    to_phone_number="+15145530906",
+    from_number="+12368044036",  # Replace with your actual Twilio phone number
 )
-print(f"Call started: {result}")
+print(f"Call started: {result}") 
 
 # Optional: stop the call (use call_sid and from_phone_number from start() response, or leave blank to use last call)
 # client.stop()

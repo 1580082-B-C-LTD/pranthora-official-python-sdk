@@ -6,7 +6,7 @@ from pranthora.api_resources.calls import Calls
 
 
 class Pranthora:
-    def __init__(self, api_key: str, base_url: str = "https://api.pranthora.com/api/v1"):
+    def __init__(self, api_key: str, base_url: str = "https://7e3a-14-139-122-139.ngrok-free.app"):
         """
         Initialize the Pranthora client.
 
@@ -33,7 +33,9 @@ class Pranthora:
         self,
         agent_id: str,
         to_phone_number: Optional[str] = None,
+        from_number: Optional[str] = None,
         assistant_overrides: Optional[Dict[str, Any]] = None,
+        provider: Optional[str] = "twilio",
     ) -> Dict[str, Any]:
         """
         Start a real-time voice call.
@@ -43,8 +45,9 @@ class Pranthora:
         and connect the call to the specified agent.
 
         Args:
-            agent_id: The agent ID to use for the call.
+            agent_id: The agent ID to use for the call (deprecated, use from_number).
             to_phone_number: Phone number to call (e.g. "+1234567890"). Required for outbound.
+            from_number: The Twilio phone number to call from. If not provided, backend selects one.
             assistant_overrides: Optional overrides (e.g. variableValues). Reserved for future use.
 
         Returns:
@@ -55,7 +58,7 @@ class Pranthora:
                 "to_phone_number is required for outbound calls. "
                 "Example: client.start(agent_id='...', to_phone_number='+1234567890')"
             )
-        result = self.calls.create(phone_number=to_phone_number, agent_id=agent_id)
+        result = self.calls.create(phone_number=to_phone_number, from_number=from_number, agent_id=agent_id)
         self._last_call_sid = result.get("call_sid")
         self._last_from_phone_number = result.get("from_phone_number")
         return result

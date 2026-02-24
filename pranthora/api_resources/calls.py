@@ -9,6 +9,7 @@ class Calls:
     def create(
         self,
         phone_number: str,
+        from_number: Optional[str] = None,
         agent_id: Optional[str] = None,
     ) -> Dict[str, Any]:
         """
@@ -16,16 +17,16 @@ class Calls:
 
         Args:
             phone_number: The phone number to call (e.g. "+1234567890").
-            agent_id: Optional agent ID. If provided, the call is handled by this agent.
-                     If omitted, the backend uses the agent mapped to your Twilio number.
+            from_number: The Twilio phone number to call from. If not provided, uses available phone.
+            agent_id: Optional agent ID (deprecated, use from_number for agent selection).
 
         Returns:
             Dict with status, call_sid, from_phone_number, etc.
         """
-        params: Dict[str, Any] = {"phoneNumber": phone_number}
-        if agent_id:
-            params["agent_id"] = agent_id
-        return self.requestor.request("POST", "/calls", params=params)
+        params: Dict[str, Any] = {"to_number": phone_number}
+        if from_number:
+            params["from_number"] = from_number
+        return self.requestor.request("POST", "/outbound-calls", params=params)
 
     def stop(
         self,
