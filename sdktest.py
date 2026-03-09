@@ -48,14 +48,17 @@ client = Pranthora(api_key="a967a994b2ee02c0b4578e5e02bba7d3", base_url="http://
 # # Or explicitly set force_delete
 # client.agents.delete(agent_id="71f6a4be-7131-4b0e-8a4d-dae6db40850a", force_delete=True)
 
-# Real-time voice: start outbound call (uses your attached Twilio number to call to_phone_number with the given agent)
-# Replace +1234567890 with the number to call, and +0987654321 with your Twilio from_number
-result = client.start(
-    agent_id="7805ed0c-d1e9-451e-ac43-5be2a34ebc97",
-    to_phone_number="+15145530906",
-    from_number="+12368044036",  # Replace with your actual Twilio phone number
+# Real-time voice: start outbound call (uses your attached phone number to call to_phone_number with the given agent)
+# Replace +1234567890 with the number to call, and +0987654321 with your phone number
+
+# Example 3: Outbound call with Elison provider
+print("\nStarting outbound call with Elison provider...")
+result_elison = client.start(
+    to_phone_number="9687579434",
+    from_number="+919484954309",  # Your Elison phone number
+    provider="elison"
 )
-print(f"Call started: {result}") 
+print(f"Call started with Elison: {result_elison}")
 
 # Optional: stop the call (use call_sid and from_phone_number from start() response, or leave blank to use last call)
 # client.stop()

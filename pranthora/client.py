@@ -31,7 +31,7 @@ class Pranthora:
 
     def start(
         self,
-        agent_id: str,
+        agent_id: Optional[str] = None,
         to_phone_number: Optional[str] = None,
         from_number: Optional[str] = None,
         assistant_overrides: Optional[Dict[str, Any]] = None,
@@ -40,14 +40,14 @@ class Pranthora:
         """
         Start a real-time voice call.
 
-        For outbound phone calls: pass agent_id and to_phone_number.
-        The backend will use your attached Twilio number to call to_phone_number
-        and connect the call to the specified agent.
+        For outbound phone calls: pass to_phone_number and optionally from_number.
+        The backend will use your attached phone number to call to_phone_number
+        and connect the call to the agent mapped to that phone number.
 
         Args:
-            agent_id: The agent ID to use for the call (deprecated, use from_number).
+            agent_id: Deprecated - agent is determined by phone mapping.
             to_phone_number: Phone number to call (e.g. "+1234567890"). Required for outbound.
-            from_number: The Twilio phone number to call from. If not provided, backend selects one.
+            from_number: The phone number to call from. If not provided, backend selects one.
             assistant_overrides: Optional overrides (e.g. variableValues). Reserved for future use.
 
         Returns:
@@ -58,7 +58,7 @@ class Pranthora:
                 "to_phone_number is required for outbound calls. "
                 "Example: client.start(agent_id='...', to_phone_number='+1234567890')"
             )
-        result = self.calls.create(phone_number=to_phone_number, from_number=from_number, agent_id=agent_id)
+        result = self.calls.create(phone_number=to_phone_number, from_number=from_number, agent_id=agent_id, provider=provider)
         self._last_call_sid = result.get("call_sid")
         self._last_from_phone_number = result.get("from_phone_number")
         return result

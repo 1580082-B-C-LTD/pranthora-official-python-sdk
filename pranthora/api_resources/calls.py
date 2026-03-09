@@ -11,22 +11,26 @@ class Calls:
         phone_number: str,
         from_number: Optional[str] = None,
         agent_id: Optional[str] = None,
+        provider: Optional[str] = "twilio",
     ) -> Dict[str, Any]:
         """
         Initiate an outbound call to a phone number, optionally with a specific agent.
 
         Args:
             phone_number: The phone number to call (e.g. "+1234567890").
-            from_number: The Twilio phone number to call from. If not provided, uses available phone.
+            from_number: The phone number to call from. If not provided, uses available phone.
             agent_id: Optional agent ID (deprecated, use from_number for agent selection).
+            provider: Call provider to use (twilio, elison, exotel). Defaults to twilio.
 
         Returns:
             Dict with status, call_sid, from_phone_number, etc.
         """
-        params: Dict[str, Any] = {"to_number": phone_number}
+        data: Dict[str, Any] = {"phoneNumber": phone_number, "provider": provider}
         if from_number:
-            params["from_number"] = from_number
-        return self.requestor.request("POST", "/outbound-calls", params=params)
+            data["from_number"] = from_number
+        if agent_id:
+            data["agent_id"] = agent_id
+        return self.requestor.request("POST", "/outbound-calls", params=data)
 
     def stop(
         self,

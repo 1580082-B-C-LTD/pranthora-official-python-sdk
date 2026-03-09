@@ -104,10 +104,37 @@ assistant_overrides = {
 client.start(agent_id="YOUR_AGENT_ID", assistant_overrides=assistant_overrides)
 ```
 
+#### Start an Outbound Call
+
+```python
+# Start an outbound call with default provider (Twilio)
+result = client.start(
+    agent_id="YOUR_AGENT_ID",
+    to_phone_number="+1234567890",
+    from_number="+0987654321"  # Your Twilio phone number
+)
+
+# Start an outbound call with specific provider
+result = client.start(
+    agent_id="YOUR_AGENT_ID",
+    to_phone_number="+1234567890",
+    from_number="+0987654321",  # Your phone number
+    provider="elison"  # Options: "twilio", "elison", "exotel"
+)
+
+# Result contains call details
+print(f"Call SID: {result['call_sid']}")
+print(f"From Number: {result['from_phone_number']}")
+```
+
 #### Stop a Call
 
 ```python
+# Stop the current call
 client.stop()
+
+# Or stop a specific call
+client.stop(call_sid="CA1234567890", from_phone_number="+0987654321")
 ```
 
 ## Testing
