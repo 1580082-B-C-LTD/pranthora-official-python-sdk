@@ -1,4 +1,6 @@
-from typing import Optional, Dict, Any
+from typing import Optional, Dict, Any, List
+import threading
+import time
 
 from pranthora.utils.api_requestor import APIRequestor
 from pranthora.api_resources.agents import Agents
@@ -86,3 +88,105 @@ class Pranthora:
             )
         from_phone = from_phone_number or self._last_from_phone_number
         return self.calls.stop(call_sid=sid, from_phone_number=from_phone)
+
+    def start_multiple(
+        self,
+        call_configs: List[Dict[str, Any]],
+        delay_between_calls: float = 0.0,
+    ) -> List[Dict[str, Any]]:
+        """
+        Start multiple real-time voice calls simultaneously or with a delay.
+
+        Args:
+            call_configs: List of call configurations. Each config should contain:
+                - to_phone_number: Phone number to call (required)
+                - from_number: Phone number to call from (optional)
+                - agent_id: Agent ID (optional, deprecated)
+                - provider: Call provider (optional, defaults to "twilio")
+            delay_between_calls: Delay in seconds between starting each call (default: 0.0 for simultaneous)
+
+        Returns:
+            List of results from each call start, in the same order as call_configs.
+            Each result contains status, call_sid, from_phone_number, etc.
+        """
+        results = []
+        threads = []
+
+        def start_single_call(config: Dict[str, Any], index: int):
+            try:
+                result = self.start(
+                    agent_id=config.get("agent_id"),
+                    to_phone_number=config.get("to_phone_number"),
+                    from_number=config.get("from_number"),
+                    provider=config.get("provider", "twilio"),
+                )
+                results.append((index, result))
+            except Exception as e:
+                results.append((index, {"error": str(e), "config": config}))
+
+        # Start threads for each call
+        for i, config in enumerate(call_configs):
+            if not config.get("to_phone_number"):
+                results.append((i, {"error": "to_phone_number is required", "config": config}))
+                continue
+
+            thread = threading.Thread(target=start_single_call, args=(config, i))
+            threads.append(thread)
+            thread.start()
+
+            if delay_between_calls > 0 and i < len(call_configs) - 1:
+                time.sleep(delay_between_calls)
+
+        # Wait for all threads to complete
+        for thread in threads:
+            thread.join()
+
+        # Sort results by index to maintain order
+        results.sort(key=lambda x: x[0])
+        return [result for _, result in results]
+
+    def stop_multiple(
+        self,
+        call_details: List[Dict[str, str]],
+    ) -> List[Dict[str, Any]]:
+        """
+        Stop multiple active calls.
+
+        Args:
+            call_details: List of call details. Each should contain:
+                - call_sid: The call SID to stop (required)
+                - from_phone_number: The phone number that placed the call (optional)
+
+        Returns:
+            List of results from each call stop, in the same order as call_details.
+        """
+        results = []
+        threads = []
+
+        def stop_single_call(detail: Dict[str, str], index: int):
+            try:
+                result = self.stop(
+                    call_sid=detail.get("call_sid"),
+                    from_phone_number=detail.get("from_phone_number"),
+                )
+                results.append((index, result))
+            except Exception as e:
+                results.append((index, {"error": str(e), "detail": detail}))
+
+        # Start threads for each stop
+        for i, detail in enumerate(call_details):
+            if not detail.get("call_sid"):
+                results.append((i, {"error": "call_sid is required", "detail": detail}))
+                continue
+
+            thread = threading.Thread(target=stop_single_call, args=(detail, i))
+            threads.append(thread)
+            thread.start()
+
+        # Wait for all threads to complete
+        for thread in threads:
+            thread.join()
+
+        # Sort results by index to maintain order
+        results.sort(key=lambda x: x[0])
+        return [result for _, result in results]

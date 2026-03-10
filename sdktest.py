@@ -52,14 +52,36 @@ client = Pranthora(api_key="a967a994b2ee02c0b4578e5e02bba7d3", base_url="http://
 # Replace +1234567890 with the number to call, and +0987654321 with your phone number
 
 # Example 3: Outbound call with Elison provider
-print("\nStarting outbound call with Elison provider...")
-result_elison = client.start(
-    to_phone_number="9687579434",
-    from_number="+919484954309",  # Your Elison phone number
-    provider="elison"
-)
-print(f"Call started with Elison: {result_elison}")
+# print("\nStarting outbound call with Elison provider...")
+# result_elison = client.start(
+#     to_phone_number="9687579434",
+#     from_number="+919484954320",  # Your Elison phone number
+#     provider="elison"
+# )
+# print(f"Call started with Elison: {result_elison}")
 
-# Optional: stop the call (use call_sid and from_phone_number from start() response, or leave blank to use last call)
-# client.stop()
-#Test
+# Example 4: Start multiple simultaneous calls
+print("\nStarting multiple simultaneous calls...")
+call_configs = [
+    {
+        "to_phone_number": "7405835650",
+        "from_number": "+919484954309",
+        "provider": "elison"
+    },
+    {
+        "to_phone_number": "9687579434",  # Replace with another phone number
+        "from_number": "+919484954309",
+        "provider": "elison"
+    }
+]
+
+results = client.start_multiple(call_configs=call_configs)
+print(f"Multiple calls started: {results}")
+
+# Optional: stop all calls
+# stop_details = [
+#     {"call_sid": result.get("call_sid"), "from_phone_number": result.get("from_phone_number")}
+#     for result in results if "call_sid" in result
+# ]
+# stop_results = client.stop_multiple(call_details=stop_details)
+# print(f"Multiple calls stopped: {stop_results}")
